@@ -11,8 +11,20 @@ datasource db {
     relationMode = "prisma"
 }
 
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model PlayerPool {
+  id           Int    @id @default(autoincrement())
+  summonerId   String @unique
+  summonerName String
+  puuid        String
+}
+
+model Vote {
+  id         Int    @id @default(autoincrement())
+  clerkUserId String // The Clerk user id
+  GameID     String
+  GameWinner String
+  userVote   String
+  votedAt DateTime @default(now())
+
+  @@index([clerkUserId])
 }
