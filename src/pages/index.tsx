@@ -2,17 +2,15 @@ import { SignIn, SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import Game from "~/Game";
+import { PlayerStats } from "~/server/api/routers/game";
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
 
   const user = useUser();
-
-  const { data } = api.game.getOne.useQuery();
-
-  console.log(data);
-  const participants = data?.participants;
-
+  
   return (
     <>
       <Head>
@@ -28,7 +26,8 @@ const Home: NextPage = () => {
           {!!user.isSignedIn && (
             <>
               {user.user.id}
-              {participants?.map((item)=>(<div key={item.puuid}>{item.championName}</div>))}
+              <Game />
+              
               <SignOutButton />
             </>
           )}
