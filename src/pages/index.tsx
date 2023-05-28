@@ -3,6 +3,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import AudioPlayer from "~/components/AudioPlayer";
 import Game from "~/components/Game";
 import Navbar from "~/components/Navbar";
 import { PlayerStats } from "~/server/api/routers/game";
@@ -20,6 +21,7 @@ const Home: NextPage = () => {
       </Head>
       <main className="h-screen w-screen bg-[url('/game-bg.jpg')] main">
         <Navbar />
+        <AudioPlayer />
         <div>{!user.isSignedIn && <SignInButton />}</div>
         <div>
           {!!user.isSignedIn && (

@@ -22,7 +22,6 @@ const ChampionCard = (props: ChampionProps): JSX.Element => {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
-  console.log(player);
 
   return (
     <>
