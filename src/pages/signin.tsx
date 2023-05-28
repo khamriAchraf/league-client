@@ -1,7 +1,7 @@
 import { SignInButton, SignOutButton, useUser } from '@clerk/nextjs'
 import Head from 'next/head'
 import React from 'react'
-import Game from '~/Game'
+import Game from '~/components/Game'
 
 const Signin = () => {
     

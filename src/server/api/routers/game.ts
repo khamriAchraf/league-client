@@ -114,7 +114,7 @@ export interface PlayerStats {
   onMyWayPings: number;
   participantId: number;
   pentaKills: number;
-  puuid:string;
+  puuid: string;
   riotIdName: string;
   riotIdTagline: string;
   role: string;
@@ -206,5 +206,13 @@ export const gameRouter = createTRPCRouter({
     } catch (error) {
       console.error("Error fetching game data: ", error);
     }
+  }),
+  getAvatar: publicProcedure.input(z.string()).query((opts) => {
+    const { input } = opts;
+    //      ^?
+
+    return `http://ddragon.leagueoflegends.com/cdn/13.10.1/img/champion/${encodeURIComponent(
+      input
+    )}.png`;
   }),
 });
