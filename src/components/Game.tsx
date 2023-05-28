@@ -6,53 +6,108 @@ import ChampionCard from "./ChampionCard";
 import { useQueryClient } from "@tanstack/react-query";
 import AudioPlayer from "./AudioPlayer";
 
+interface Guess {
+  date: string;
+  blueTeam: PlayerStats[];
+  redTeam: PlayerStats[];
+  actualOutcome: string;
+  userVote: string;
+  isCorrect: boolean;
+}
+
+interface VoteStats {
+  totalVotes: number;
+  correctVotes: number;
+  incorrectVotes: number;
+  accuracy: number;
+}
+
 const Game = () => {
   const [gameState, setGameState] = useState(0);
   const [fetchGame, setFetchGame] = useState(false); // Controls when to fetch game data
-  const [result, setResult] = useState();
-  const [winner, setWinner] = useState("");
-  const [volume, setVolume] = useState(50);
+  const [result, setResult] = useState<string>("");
+  const [winner, setWinner] = useState<string>("");
+  const [accuracy, setAccuracy] = useState<number>();
+  const [rightGuesses, setRightGuesses] = useState<number>();
+  const [wrongGuesses, setWrongGuesses] = useState<number>();
 
   const queryClient = useQueryClient();
 
   const castVote = (vote: string) => {
     void voteAudio.play();
-  
+
     // Determine correct outro video based on vote, not winner
-    const outroSrc = vote === 'blue' ? '/blue-magic-outro.webm' : '/red-magic-outro.webm';
-  
+    const outroSrc =
+      vote === "blue" ? "/blue-magic-outro.webm" : "/red-magic-outro.webm";
+
     // Get the correct video element
-    const outroVideo = vote === 'blue' ? blueVideoRef.current! : redVideoRef.current!;
-  
+    const outroVideo =
+      vote === "blue" ? blueVideoRef.current! : redVideoRef.current!;
+
     // Create a new source element
-    const source = document.createElement('source');
+    const source = document.createElement("source");
     source.src = outroSrc;
-    source.type = 'video/webm';
-  
+    source.type = "video/webm";
+
     // Remove existing sources and add the new one
     while (outroVideo.firstChild) {
-        outroVideo.firstChild.remove();
+      outroVideo.firstChild.remove();
     }
     outroVideo.appendChild(source);
-  
+
     // Set loop to false, load and play the video
     outroVideo.loop = false;
     outroVideo.load();
     void outroVideo.play();
-  
+
     // Hide buttons after the outro video ends
     outroVideo.onended = () => {
-      setGameState(2);  // Add a new gameState to hide buttons
+      setGameState(2); // Add a new gameState to hide buttons
     };
-  
+
     // Check correctness after vote is cast
     if (vote === winner) {
-      alert("Correct");
+      setResult("correct");
     } else {
-      alert("Wrong");
+      setResult("wrong");
     }
+    // ...rest of your function...
+
+    // After the correctness is checked, update localStorage
+    const currentGuess: Guess = {
+      date: new Date().toISOString(),
+      blueTeam: blueTeam,
+      redTeam: redTeam,
+      actualOutcome: winner,
+      userVote: vote,
+      isCorrect: vote === winner,
+    };
+
+    // Fetch the existing guesses from localStorage
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const previousGuesses: Guess[] = JSON.parse(
+      localStorage.getItem("guessHistory") ?? "[]"
+    );
+
+    // Add the current guess to the history
+    previousGuesses.push(currentGuess);
+
+    // Save back to localStorage
+    localStorage.setItem("guessHistory", JSON.stringify(previousGuesses));
+
+    // Update overall stats
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const stats: VoteStats = JSON.parse(
+      localStorage.getItem("voteStats") ?? "{}"
+    );
+    stats.totalVotes = (stats.totalVotes || 0) + 1;
+    stats.correctVotes = (stats.correctVotes || 0) + (vote === winner ? 1 : 0);
+    stats.incorrectVotes = stats.totalVotes - stats.correctVotes;
+    stats.accuracy = stats.correctVotes / stats.totalVotes;
+
+    // Save back to localStorage
+    localStorage.setItem("voteStats", JSON.stringify(stats));
   };
-  
 
   const gameQuery = api.game.getOne.useQuery(undefined, {
     refetchOnWindowFocus: false,
@@ -61,10 +116,12 @@ const Game = () => {
   });
 
   const { data, isLoading, isError } = gameQuery;
+  console.log(data);
 
   const participants = data?.participants ?? [];
   const blueTeam = participants.slice(0, 5);
   const redTeam = participants.slice(5, 10);
+  const gameId = data?.gameId;
 
   const blueVideoRef = React.useRef<HTMLVideoElement>(null);
   const redVideoRef = React.useRef<HTMLVideoElement>(null);
@@ -72,6 +129,21 @@ const Game = () => {
   useEffect(() => {
     blueTeam[0]?.win ? void setWinner("blue") : void setWinner("red");
   }, [blueTeam]);
+
+  useEffect(() => {
+    if (gameState === 2) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const voteStats: VoteStats = JSON.parse(
+        localStorage.getItem("voteStats") ?? "{}"
+      );
+      const totalVotes: number =
+        voteStats.correctVotes + voteStats.incorrectVotes;
+      setRightGuesses(voteStats.correctVotes || 0);
+      setWrongGuesses(voteStats.incorrectVotes || 0);
+      const accuracy = voteStats.accuracy * 100;
+      setAccuracy(accuracy);
+    }
+  }, [gameState]);
 
   const handleStartGame = () => {
     setFetchGame(true); // Starts fetching game data
@@ -161,7 +233,7 @@ const Game = () => {
                 alt=""
               />
             </div>
-            <div className="vote-section flex-1 self-center text-center ">
+            <div className="vote-section relative z-20 flex-1 self-center text-center">
               {gameState === 1 && (
                 <>
                   <div className="flex flex-row gap-2">
@@ -209,6 +281,41 @@ const Game = () => {
                   </div>
                 </>
               )}
+              {gameState === 2 && (
+                <div className="flex h-[500px] flex-col items-center justify-around pb-[50px] pt-[50px]">
+                  <p className="text-grey">GameID: {gameId}</p>
+                  <div>
+                    {result === "win" ? (
+                      <p className="text-2xl font-bold uppercase  text-blue">
+                        Correct
+                      </p>
+                    ) : (
+                      <p className="text-2xl font-bold uppercase  text-red">
+                        Wrong
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex w-full flex-row items-center justify-around">
+                    <div className="flex flex-col">
+                      <div className="text-xs text-grey">
+                        Times Guessed Right
+                      </div>
+                      <p className="text-xl text-grey">{rightGuesses}</p>
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="text-xs text-grey">Overall Accuracy</div>
+                      <div className="text-xl text-grey">{accuracy}</div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div className="text-xs text-grey">
+                        Times Guessed Wrong
+                      </div>
+                      <p className="text-xl text-grey">{wrongGuesses}</p>
+                    </div>
+                  </div>
+                  <div>Replay</div>
+                </div>
+              )}
             </div>
             {/* <button className="btn playButton" onClick={handleRefresh}>
             REFRESH
@@ -235,6 +342,9 @@ const Game = () => {
       )}
       {gameState === 0 && (
         <div className="flex-column flex h-[80vh] w-full items-end justify-center">
+          <video autoPlay loop muted className="brightness-200">
+            <source src="/reward1_magic.webm" type="video/webm" />
+          </video>
           <button
             className="btn playButton bg-[url('/button-accept-default.png')] bg-cover hover:bg-[url('/button-accept-hover.png')]"
             onClick={handleStartGame}

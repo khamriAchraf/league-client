@@ -23,13 +23,12 @@ const ChampionCard = (props: ChampionProps): JSX.Element => {
     refetchOnReconnect: false,
   });
 
+
   return (
     <>
       <div
-        className={`mb-1 z-2 relative flex gap-5 p-[8px] ${
-          team === "red"
-            ? "flex-row-reverse pr-4"
-            : "flex-row  pl-4"
+        className={`z-2 relative mb-1 flex gap-5 p-[8px] ${
+          team === "red" ? "flex-row-reverse pr-4" : "flex-row  pl-4"
         }`}
       >
         <div className="flex">
@@ -46,7 +45,7 @@ const ChampionCard = (props: ChampionProps): JSX.Element => {
             {player.championName}
           </p>
           <div
-            className={`flex gap-1 items-center ${
+            className={`flex items-center gap-1 ${
               team === "red" ? "flex-row-reverse " : "flex-row "
             }`}
           >
