@@ -30,7 +30,11 @@ const Game = () => {
   const [accuracy, setAccuracy] = useState<number>();
   const [rightGuesses, setRightGuesses] = useState<number>();
   const [wrongGuesses, setWrongGuesses] = useState<number>();
-
+  const [lastFive, setLastFive] = useState<boolean[]>();
+  const [blueDragons, setBlueDragons] = useState();
+  const [redDragons, setRedDragons] = useState();
+  const [blueBaron, setBlueBaron] = useState();
+  const [redBaron, setRedBaron] = useState();
   const queryClient = useQueryClient();
 
   const castVote = (vote: string) => {
@@ -116,18 +120,29 @@ const Game = () => {
   });
 
   const { data, isLoading, isError } = gameQuery;
-  console.log(data);
+  function formatSeconds(seconds: number | undefined): string | undefined {
+    if (seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+
+      return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+        .toString()
+        .padStart(2, "0")}`;
+    }
+  }
 
   const participants = data?.participants ?? [];
   const blueTeam = participants.slice(0, 5);
   const redTeam = participants.slice(5, 10);
   const gameId = data?.gameId;
+  const gameTime = formatSeconds(data?.gameDuration);
 
   const blueVideoRef = React.useRef<HTMLVideoElement>(null);
   const redVideoRef = React.useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     blueTeam[0]?.win ? void setWinner("blue") : void setWinner("red");
+    setBlueBaron(blueTeam)
   }, [blueTeam]);
 
   useEffect(() => {
@@ -142,6 +157,11 @@ const Game = () => {
       setWrongGuesses(voteStats.incorrectVotes || 0);
       const accuracy = voteStats.accuracy * 100;
       setAccuracy(accuracy);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const guessHistory: Guess[] = JSON.parse(
+        localStorage.getItem("guessHistory") ?? "{}"
+      );
+      setLastFive(guessHistory.slice(-5).map((guess) => guess.isCorrect));
     }
   }, [gameState]);
 
@@ -151,8 +171,10 @@ const Game = () => {
   };
 
   const handleRefresh = async () => {
+    void voteAudio.play();
     await queryClient.invalidateQueries();
-    return null;
+    setGameState(1);
+    return;
   };
 
   if (fetchGame && isLoading)
@@ -235,8 +257,58 @@ const Game = () => {
             </div>
             <div className="vote-section relative z-20 flex-1 self-center text-center">
               {gameState === 1 && (
-                <>
-                  <div className="flex flex-row gap-2">
+                <div className="flex h-[500px] flex-col items-center justify-around pb-[50px] pt-[50px]">
+                  <div className="flex flex-col items-center justify-center gap-1">
+                    <img
+                      className="flex h-8 w-8"
+                      src="/icons/map_sr.png"
+                      alt=""
+                    />
+                    <p className="text-grey">Summoners Rift - Ranked</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <div className="text-xs text-grey">Game Duration</div>
+                    <p className="text-xl text-grey">{gameTime}</p>
+                  </div>
+                  <div className="objectives flex w-full flex-row items-center justify-around">
+                    <div className="flex-col items-center justify-center">
+                      <div className="text-xs text-grey pb-4">Objectives</div>
+                      <div className="flex flex-row items center justify-around  w-40">
+                      <div className="flex flex-col gap-2">
+                      <div className=" text-xs text-grey">
+                        <img className="flex h-6 w-6" src="/icons/baron-100.png" alt="" />
+                      </div>
+                      <p className="text-lg text-grey">3</p>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div className=" text-xs text-grey">
+                      <img className="flex h-6 w-6" src="/icons/dragon-100.png" alt="" />
+                      </div>
+                      <p className="text-lg text-grey">2</p>
+                    </div>
+                      </div>
+                    </div>
+                    <div className="flex-col items-center justify-center">
+                    <div className="flex-col items-center justify-center">
+                      <div className="text-xs text-grey pb-4">Objectives</div>
+                      <div className="flex flex-row items center justify-around  w-40">
+                      <div className="flex flex-col gap-2">
+                      <div className=" text-lg text-grey">
+                        <img className="flex h-6 w-6" src="/icons/dragon-200.png" alt="" />
+                      </div>
+                      <p className="text-lg text-grey">3</p>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div className=" text-lg text-grey">
+                      <img className="flex h-6 w-6" src="/icons/baron-200.png" alt="" />
+                      </div>
+                      <p className="text-lg text-grey">2</p>
+                    </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                  <div className="button-row flex flex-row border-y">
                     <div className="video-button-container flex-1">
                       <video
                         ref={blueVideoRef}
@@ -252,12 +324,12 @@ const Game = () => {
                         onClick={() => {
                           castVote("blue");
                         }}
-                        className="video-button "
+                        className="video-button text-lg font-bold text-tan"
                       >
-                        Vote Blue
+                        Blue Win
                       </button>
                     </div>
-
+                    <div className="h-auto w-[1px] bg-gold"></div>
                     <div className="video-button-container-red flex-1">
                       <video
                         ref={redVideoRef}
@@ -273,19 +345,19 @@ const Game = () => {
                         onClick={() => {
                           castVote("red");
                         }}
-                        className="video-button-red"
+                        className="video-button-red text-lg font-bold text-tan"
                       >
-                        Vote Red
+                        Red Win
                       </button>
                     </div>
                   </div>
-                </>
+                </div>
               )}
               {gameState === 2 && (
                 <div className="flex h-[500px] flex-col items-center justify-around pb-[50px] pt-[50px]">
                   <p className="text-grey">GameID: {gameId}</p>
                   <div>
-                    {result === "win" ? (
+                    {result === "correct" ? (
                       <p className="text-2xl font-bold uppercase  text-blue">
                         Correct
                       </p>
@@ -295,16 +367,29 @@ const Game = () => {
                       </p>
                     )}
                   </div>
+                  <div className="flex flex-col gap-0 pt-16">
+                    <div className=" text-xs text-grey">Last Five Guesses</div>
+                    <div>
+                      {lastFive?.map((guess, index) => (
+                        <div
+                          key={index}
+                          className={`dot ${guess ? "win" : "loss"}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
                   <div className="flex w-full flex-row items-center justify-around">
-                    <div className="flex flex-col">
-                      <div className="text-xs text-grey">
+                    <div className="flex flex-col gap-2">
+                      <div className=" text-xs text-grey">
                         Times Guessed Right
                       </div>
                       <p className="text-xl text-grey">{rightGuesses}</p>
                     </div>
-                    <div className="flex flex-col">
-                      <div className="text-xs text-grey">Overall Accuracy</div>
-                      <div className="text-xl text-grey">{accuracy}</div>
+                    <div className="flex flex-col gap-2">
+                      <div className=" text-xs text-grey">Overall Accuracy</div>
+                      <div className="text-2xl text-grey">
+                        {accuracy?.toFixed(2)} %
+                      </div>
                     </div>
                     <div className="flex flex-col gap-2">
                       <div className="text-xs text-grey">
@@ -313,7 +398,13 @@ const Game = () => {
                       <p className="text-xl text-grey">{wrongGuesses}</p>
                     </div>
                   </div>
-                  <div>Replay</div>
+                  <div className="pt-16">
+                    <button
+                      className="h-20 w-20 bg-[url('/button-replay-normal.png')] bg-cover hover:bg-[url('/button-replay-hover.png')] active:bg-[url('/button-replay-click.png')]"
+                      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                      onClick={() => handleRefresh()}
+                    ></button>
+                  </div>
                 </div>
               )}
             </div>

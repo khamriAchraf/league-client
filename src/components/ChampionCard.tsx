@@ -14,7 +14,7 @@ const ChampionCard = (props: ChampionProps): JSX.Element => {
   const positionJungle = "/icons/position-jungle.svg";
   const positionUtility = "/icons/position-utility.svg";
   const { player, team } = props;
-
+  console.log(player);
   const blueTeam = "";
   const redTeam = "text-right";
 
@@ -23,11 +23,19 @@ const ChampionCard = (props: ChampionProps): JSX.Element => {
     refetchOnReconnect: false,
   });
 
-
   return (
     <>
+      {/* {player.firstBloodKill ||
+        (player.firstTowerKill && (
+          <><img
+            className="absolute left-[120px] -pt-6"
+            src="/background-overlay.svg"
+            alt=""
+          />
+          </>
+        ))} */}
       <div
-        className={`z-2 relative mb-1 flex gap-5 p-[8px] ${
+        className={`z-2 relative mb-1 items-center flex gap-5 p-[8px] ${
           team === "red" ? "flex-row-reverse pr-4" : "flex-row  pl-4"
         }`}
       >
@@ -96,6 +104,11 @@ const ChampionCard = (props: ChampionProps): JSX.Element => {
               {player.teamPosition}
             </p>
           </div>
+        </div>
+        <div className="w-[40px]"></div>
+        <div className="icons flex flex-row justify-center">
+          {player.firstTowerKill && <img className="relative z-20" src="/icons/tower-200.png" alt="" />}
+          {player.firstBloodKill && <img className="relative z-20 w-6 h-6" src="/icons/kills.png" alt="" />}
         </div>
       </div>
     </>

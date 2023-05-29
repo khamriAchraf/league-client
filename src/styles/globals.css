@@ -27,6 +27,13 @@ body {
   filter: brightness(0.8);
 }
 
+.button-row {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(to right, transparent 10%,  #c3a568 50%, transparent 90%);
+  border-image-slice: 1;
+}
+
 .cropped-image img {
   width: 115%;
   height: 115%;
@@ -91,14 +98,15 @@ body {
   position: absolute;
   width: 100%;
   height: 100%;
-  opacity: 0; /* Initially hidden */
-  transition: opacity 0.3s ease-in-out; /* Transition effect */
+  opacity: 1; /* Initially hidden */
+  transition: all 0.3s ease-in-out; /* Transition effect */
   z-index: 0;
+  opacity: 0.7;
   transform: scale(-1);
 }
 
 .video-button-container:hover .video-background {
-  opacity: 1; /* Visible on hover */
+  opacity: 1;
 }
 
 .video-button {
@@ -106,7 +114,6 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  color: white;
   border: none;
   outline: none;
 }
@@ -122,14 +129,14 @@ body {
   position: absolute;
   width: 100%;
   height: 100%;
-  opacity: 0; /* Initially hidden */
+  opacity: 0.7; /* Initially hidden */
   transition: opacity 0.3s ease-in-out; /* Transition effect */
   z-index: 0;
   transform: scale(-1);
 }
 
 .video-button-container-red:hover .video-background-red {
-  opacity: 1; /* Visible on hover */
+  opacity: 1.5; /* Visible on hover */
 }
 
 .video-button-red {
@@ -214,10 +221,34 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%,-50%) scale(1.2);
+  transform: translate(-50%, -50%) scale(1.2);
 }
 
 .role-icon {
   width: 18px;
   height: 18px;
+}
+
+.dot {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.win {
+  background-color: #0a96aa;
+}
+
+.loss {
+  background-color: #be1e37;
+}
+
+.empty {
+  background-color: grey;
+}
+
+.first-icon {
+  
 }
