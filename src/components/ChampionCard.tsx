@@ -39,6 +39,11 @@ const ChampionCard = (props: ChampionProps): JSX.Element => {
           team === "red" ? "flex-row-reverse pr-4" : "flex-row  pl-4"
         }`}
       >
+        <div className="flex flex-col gap-2 justify-center items-center">
+        <img className="h-6 w-6 border-[#2b2d33] border" src={`/icons/${player.summoner1Id}.webp`} alt="" />
+        <img className="h-6 w-6  border-[#2b2d33] border" src={`/icons/${player.summoner2Id}.webp`} alt="" />
+        </div>
+        
         <div className="flex">
           <div className="cropped-image ">
             <img className="" src={avatar.data} alt="" />

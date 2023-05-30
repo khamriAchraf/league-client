@@ -8,8 +8,6 @@ import AudioPlayer from "./AudioPlayer";
 
 interface Guess {
   date: string;
-  blueTeam: PlayerStats[];
-  redTeam: PlayerStats[];
   actualOutcome: string;
   userVote: string;
   isCorrect: boolean;
@@ -35,6 +33,8 @@ const Game = () => {
   const [redDragons, setRedDragons] = useState();
   const [blueBaron, setBlueBaron] = useState();
   const [redBaron, setRedBaron] = useState();
+  const [blueHerald, setBlueHerald] = useState();
+  const [redHerald, setRedHerald] = useState();
   const queryClient = useQueryClient();
 
   const castVote = (vote: string) => {
@@ -80,8 +80,6 @@ const Game = () => {
     // After the correctness is checked, update localStorage
     const currentGuess: Guess = {
       date: new Date().toISOString(),
-      blueTeam: blueTeam,
-      redTeam: redTeam,
       actualOutcome: winner,
       userVote: vote,
       isCorrect: vote === winner,
@@ -142,7 +140,19 @@ const Game = () => {
 
   useEffect(() => {
     blueTeam[0]?.win ? void setWinner("blue") : void setWinner("red");
-    setBlueBaron(blueTeam)
+    console.log(data?.teams[0]);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    setBlueBaron(data?.teams[0]!.objectives.baron.kills);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    setRedBaron(data?.teams[1]!.objectives.baron.kills);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    setBlueDragons(data?.teams[0]!.objectives.dragon.kills);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    setRedDragons(data?.teams[1]!.objectives.dragon.kills); 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    setBlueHerald(data?.teams[0]!.objectives.riftHerald.kills); 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    setRedHerald(data?.teams[1]!.objectives.riftHerald.kills);
   }, [blueTeam]);
 
   useEffect(() => {
@@ -272,40 +282,76 @@ const Game = () => {
                   </div>
                   <div className="objectives flex w-full flex-row items-center justify-around">
                     <div className="flex-col items-center justify-center">
-                      <div className="text-xs text-grey pb-4">Objectives</div>
-                      <div className="flex flex-row items center justify-around  w-40">
-                      <div className="flex flex-col gap-2">
-                      <div className=" text-xs text-grey">
-                        <img className="flex h-6 w-6" src="/icons/baron-100.png" alt="" />
-                      </div>
-                      <p className="text-lg text-grey">3</p>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <div className=" text-xs text-grey">
-                      <img className="flex h-6 w-6" src="/icons/dragon-100.png" alt="" />
-                      </div>
-                      <p className="text-lg text-grey">2</p>
-                    </div>
+                      <div className="pb-4 text-xs text-grey">Objectives</div>
+                      <div className="items center flex w-40 flex-row  justify-around">
+                        <div className="flex flex-col gap-2">
+                          <div className=" text-xs text-grey">
+                            <img
+                              className="flex h-6 w-6"
+                              src="/icons/baron-100.png"
+                              alt=""
+                            />
+                          </div>
+                          <p className="text-lg text-grey">{blueBaron}</p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className=" text-lg text-grey">
+                            <img
+                              className="flex h-6 w-6"
+                              src="/icons/herald-100.png"
+                              alt=""
+                            />
+                          </div>
+                          <p className="text-lg text-grey">{blueHerald}</p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className=" text-xs text-grey">
+                            <img
+                              className="flex h-6 w-6"
+                              src="/icons/dragon-100.png"
+                              alt=""
+                            />
+                          </div>
+                          <p className="text-lg text-grey">{blueDragons}</p>
+                        </div>
                       </div>
                     </div>
                     <div className="flex-col items-center justify-center">
-                    <div className="flex-col items-center justify-center">
-                      <div className="text-xs text-grey pb-4">Objectives</div>
-                      <div className="flex flex-row items center justify-around  w-40">
-                      <div className="flex flex-col gap-2">
-                      <div className=" text-lg text-grey">
-                        <img className="flex h-6 w-6" src="/icons/dragon-200.png" alt="" />
+                      <div className="flex-col items-center justify-center">
+                        <div className="pb-4 text-xs text-grey">Objectives</div>
+                        <div className="items center flex w-40 flex-row  justify-around">
+                          <div className="flex flex-col gap-2">
+                            <div className=" text-lg text-grey">
+                              <img
+                                className="flex h-6 w-6"
+                                src="/icons/dragon-200.png"
+                                alt=""
+                              />
+                            </div>
+                            <p className="text-lg text-grey">{redDragons}</p>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <div className=" text-lg text-grey">
+                              <img
+                                className="flex h-6 w-6"
+                                src="/icons/herald-200.png"
+                                alt=""
+                              />
+                            </div>
+                            <p className="text-lg text-grey">{redHerald}</p>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <div className=" text-lg text-grey">
+                              <img
+                                className="flex h-6 w-6"
+                                src="/icons/baron-200.png"
+                                alt=""
+                              />
+                            </div>
+                            <p className="text-lg text-grey">{redBaron}</p>
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-lg text-grey">3</p>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <div className=" text-lg text-grey">
-                      <img className="flex h-6 w-6" src="/icons/baron-200.png" alt="" />
-                      </div>
-                      <p className="text-lg text-grey">2</p>
-                    </div>
-                      </div>
-                    </div>
                     </div>
                   </div>
                   <div className="button-row flex flex-row border-y">

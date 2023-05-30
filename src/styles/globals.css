@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  background-image: url(/public/client-bg.jpg) !important;
+  
   background-size: cover;
   height: 100vh;
   overflow: hidden;
@@ -186,6 +186,7 @@ body {
 .inner-ring {
   position: absolute;
   top: 50%;
+  scale: 1.05;
 }
 
 .inner-ring-left {
@@ -201,6 +202,7 @@ body {
 .outer-ring {
   position: absolute;
   top: 50%;
+  scale: 1.05;
 }
 
 .outer-ring-left {
