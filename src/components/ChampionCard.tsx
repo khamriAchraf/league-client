@@ -14,7 +14,6 @@ const ChampionCard = (props: ChampionProps): JSX.Element => {
   const positionJungle = "/icons/position-jungle.svg";
   const positionUtility = "/icons/position-utility.svg";
   const { player, team } = props;
-  console.log(player);
   const blueTeam = "";
   const redTeam = "text-right";
 
@@ -50,6 +49,13 @@ const ChampionCard = (props: ChampionProps): JSX.Element => {
           </div>
         </div>
         <div className="">
+        <p
+            className={`text-xs text-tan	 ${
+              team === "red" ? redTeam : blueTeam
+            }`}
+          >
+            {player.summonerName}
+          </p>
           <p
             className={`text-lg font-bold text-tan	 ${
               team === "red" ? redTeam : blueTeam
@@ -110,6 +116,7 @@ const ChampionCard = (props: ChampionProps): JSX.Element => {
             </p>
           </div>
         </div>
+        
         <div className="w-[40px]"></div>
         <div className="icons flex flex-row justify-center">
           {player.firstTowerKill && <img className="relative z-20" src="/icons/tower-200.png" alt="" />}

@@ -5,7 +5,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { env } from "process";
 
 const prisma = new PrismaClient();
-const API_KEY: string = env["RIOT_API_KEY"] || ""; // Replace this with your API key
+const API_KEY: string ="RGAPI-03551dee-b4b4-4d2b-9c4d-d2ab86d0393f"; // Replace this with your API key
 
 interface SummonerResponse {
   id: string;
@@ -164,22 +164,16 @@ export interface PlayerStats {
 }
 
 interface Player {
-  summonerId: string;
   summonerName: string;
-  puuid: string;
 }
 
 export const gameRouter = createTRPCRouter({
   getOne: publicProcedure.query(async ({ ctx }) => {
     try {
-      const players: Player[] = await ctx.prisma.playerPool.findMany();
 
-      if (!players.length) {
-        throw new Error("No players found");
+      const randomPlayer: Player = {
+        summonerName: "Marcenstein"
       }
-
-      const randomPlayer: Player =
-        players[Math.floor(Math.random() * players.length)]!;
 
       const puuidResponse: AxiosResponse<SummonerResponse> = await axios.get(
         `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${encodeURIComponent(

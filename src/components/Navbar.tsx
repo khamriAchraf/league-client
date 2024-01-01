@@ -1,8 +1,6 @@
-import { SignOutButton, useUser } from "@clerk/nextjs";
 import React from "react";
 
 const Navbar = () => {
-  const user = useUser();
 
   return (
     <nav className="absolute flex w-screen items-center justify-center bg-transparent px-4 py-8 text-black">

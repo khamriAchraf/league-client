@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { PlayerStats } from "../server/api/routers/game";
 import { api } from "../utils/api";
@@ -38,8 +39,6 @@ const Game = () => {
   const queryClient = useQueryClient();
 
   const castVote = (vote: string) => {
-    void voteAudio.play();
-
     // Determine correct outro video based on vote, not winner
     const outroSrc =
       vote === "blue" ? "/blue-magic-outro.webm" : "/red-magic-outro.webm";
@@ -148,9 +147,9 @@ const Game = () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     setBlueDragons(data?.teams[0]!.objectives.dragon.kills);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-    setRedDragons(data?.teams[1]!.objectives.dragon.kills); 
+    setRedDragons(data?.teams[1]!.objectives.dragon.kills);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-    setBlueHerald(data?.teams[0]!.objectives.riftHerald.kills); 
+    setBlueHerald(data?.teams[0]!.objectives.riftHerald.kills);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     setRedHerald(data?.teams[1]!.objectives.riftHerald.kills);
   }, [blueTeam]);
@@ -181,7 +180,7 @@ const Game = () => {
   };
 
   const handleRefresh = async () => {
-    void voteAudio.play();
+    // void voteAudio.play();
     await queryClient.invalidateQueries();
     setGameState(1);
     return;
@@ -196,13 +195,17 @@ const Game = () => {
   if (isError) return <div>Something went wrong...</div>; // Handling error state
 
   // Handle Audio
-  const voteAudio = new Audio("/audio/vote-click.ogg");
-  voteAudio.volume = 0.3;
+  if (typeof Audio != "undefined") {
+    const voteAudio = new Audio("/audio/vote-click.ogg");
+    voteAudio.volume = 0.3;
+  }
 
   const playSound = () => {
-    const audio = new Audio("/audio/hover.ogg");
-    audio.volume = 0.3;
-    void audio.play();
+    if (typeof Audio != "undefined") {
+      const audio = new Audio("/audio/hover.ogg");
+      audio.volume = 0.3;
+      void audio.play();
+    }
   };
 
   return (
@@ -282,7 +285,6 @@ const Game = () => {
                   </div>
                   <div className="objectives flex w-full flex-row items-center justify-around">
                     <div className="flex-col items-center justify-center">
-                      <div className="pb-4 text-xs text-grey">Objectives</div>
                       <div className="items center flex w-40 flex-row  justify-around">
                         <div className="flex flex-col gap-2">
                           <div className=" text-xs text-grey">
@@ -318,7 +320,6 @@ const Game = () => {
                     </div>
                     <div className="flex-col items-center justify-center">
                       <div className="flex-col items-center justify-center">
-                        <div className="pb-4 text-xs text-grey">Objectives</div>
                         <div className="items center flex w-40 flex-row  justify-around">
                           <div className="flex flex-col gap-2">
                             <div className=" text-lg text-grey">
@@ -404,9 +405,21 @@ const Game = () => {
                   <p className="text-grey">GameID: {gameId}</p>
                   <div>
                     {result === "correct" ? (
-                      <p className="text-2xl font-bold uppercase  text-blue">
-                        Correct
-                      </p>
+                      <>
+                        <video
+                          autoPlay
+                          muted
+                          className="correct-video brightness-200"
+                        >
+                          <source
+                            src="/eog_intro_magic.webm"
+                            type="video/webm"
+                          />
+                        </video>
+                        <p className="text-2xl font-bold uppercase  text-blue">
+                          Correct
+                        </p>
+                      </>
                     ) : (
                       <p className="text-2xl font-bold uppercase  text-red">
                         Wrong
@@ -479,9 +492,6 @@ const Game = () => {
       )}
       {gameState === 0 && (
         <div className="flex-column flex h-[80vh] w-full items-end justify-center">
-          <video autoPlay loop muted className="brightness-200">
-            <source src="/reward1_magic.webm" type="video/webm" />
-          </video>
           <button
             className="btn playButton bg-[url('/button-accept-default.png')] bg-cover hover:bg-[url('/button-accept-hover.png')]"
             onClick={handleStartGame}

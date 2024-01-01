@@ -1,4 +1,3 @@
-import { SignIn, SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -10,7 +9,6 @@ import { PlayerStats } from "~/server/api/routers/game";
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
-  const user = useUser();
 
   return (
     <>
@@ -22,13 +20,11 @@ const Home: NextPage = () => {
       <main className="main h-screen w-screen bg-[url('/game-bg.jpg')] bg-cover">
         <Navbar />
         <AudioPlayer />
-        <div>{!user.isSignedIn && <SignInButton />}</div>
         <div>
-          {!!user.isSignedIn && (
+          
             <>
               <Game />
             </>
-          )}
         </div>
       </main>
     </>
